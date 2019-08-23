@@ -1,8 +1,10 @@
 #[macro_use]
 extern crate cpython;
 
-use image::Rgb;
-use cpython::{PyResult, Python};
+use std::fmt;
+
+use image::{Rgb, ImageError};
+use cpython::{PyResult, Python, PyErr, exc};
 
 py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
     m.add(py, "__doc__", "Image manipulation library")?;
@@ -10,8 +12,30 @@ py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
     Ok(())
 });
 
-pub fn increase_contrast(path: String, amount: u8, cutoff: u8) -> String {
-    let mut img = image::open(&path).unwrap().to_rgb();
+#[derive(Debug)]
+pub enum ImgError {
+    FileNotFound,
+    Error(ImageError),
+}
+
+impl fmt::Display for ImgError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "img_utils error")
+    }
+}
+
+impl From<ImageError> for ImgError {
+    fn from(err: ImageError) -> ImgError {
+        match err {
+            ImageError::IoError(_) => ImgError::FileNotFound,
+            _ => ImgError::Error(err),
+        }
+    }
+}
+
+
+pub fn increase_contrast(path: String, amount: u8, cutoff: u8) -> Result<String, ImgError> {
+    let mut img = image::open(&path)?.to_rgb();
 
     for (_, _, pixel) in img.enumerate_pixels_mut() {
         let Rgb([r, g, b]) = pixel;
@@ -29,10 +53,17 @@ pub fn increase_contrast(path: String, amount: u8, cutoff: u8) -> String {
 
     img.save("out.jpg").unwrap();
 
-    path
+    Ok(path)
 }
 
-fn increase_contrast_py(_: Python, path: String, amount: u8, cutoff: u8) -> PyResult<String> {
-    let out = increase_contrast(path, amount, cutoff);
-    Ok(out)
+fn increase_contrast_py(python: Python, path: String, amount: u8, cutoff: u8) -> PyResult<String> {
+    match increase_contrast(path, amount, cutoff) {
+        Ok(out) => Ok(out),
+        Err(e) => {
+            match e {
+                ImgError::FileNotFound => Err(PyErr::new::<exc::RuntimeError, _>(python, "File not found")),
+                e => Err(PyErr::new::<exc::RuntimeError, _>(python, format!("{:?}", e))),
+            }
+        }
+    }
 }
