@@ -1,0 +1,17 @@
+[package]
+name = "img-utils"
+version = "0.1.0"
+authors = ["Axel Örn Sigurðsson <axel@absalon.is>"]
+edition = "2018"
+
+[lib]
+name = "img_utils"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+image = "0.22.1"
+
+[dependencies.cpython]
+version = "0.3.0"
+features = ["extension-module"]
