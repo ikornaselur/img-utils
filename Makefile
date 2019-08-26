@@ -12,7 +12,7 @@ clean:
 	rm *.jpg
 
 bench: build
-	@python main.py
+	@venv/bin/python main.py
 
 bench_release: build_release
-	@python main.py
+	@venv/bin/python main.py

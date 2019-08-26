@@ -1,6 +1,11 @@
-use img_utils::increase_contrast;
-
+use img_utils::darken_pixels;
 
 fn main() {
-    increase_contrast(String::from("test.jpg"), String::from("test-out.jpg"), 80, 220).unwrap();
+    darken_pixels(
+        String::from("test.jpg"),
+        String::from("test-out.jpg"),
+        80,
+        220,
+    )
+    .unwrap();
 }
