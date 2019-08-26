@@ -1,10 +1,12 @@
 use std::fmt;
+use std::io;
 
 use image::{ImageError, Rgb, RgbImage};
 
 #[derive(Debug)]
 pub enum ImgError {
     FileNotFound,
+    IoError(io::Error),
     Error(ImageError),
 }
 
@@ -20,6 +22,12 @@ impl From<ImageError> for ImgError {
             ImageError::IoError(_) => ImgError::FileNotFound,
             _ => ImgError::Error(err),
         }
+    }
+}
+
+impl From<io::Error> for ImgError {
+    fn from(err: io::Error) -> ImgError {
+        ImgError::IoError(err)
     }
 }
 
@@ -58,7 +66,7 @@ pub fn darken_pixels(
     let src = image::open(&src_path)?.to_rgb();
 
     let dst = _darken_pixels(src, amount, cutoff)?;
-    dst.save(dst_path).unwrap(); // Convert to ImgError
+    dst.save(dst_path)?;
 
     Ok(())
 }
