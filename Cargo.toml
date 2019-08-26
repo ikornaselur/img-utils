@@ -1,8 +1,9 @@
 [package]
 name = "rusty-img-utils"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Axel Örn Sigurðsson <rusty@absalon.dev>"]
 edition = "2018"
+readme = "README.md"
 
 [lib]
 name = "img_utils"
