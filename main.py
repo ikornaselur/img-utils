@@ -3,12 +3,13 @@ import time
 import img_utils
 from PIL import Image
 
-FILE_NAME = "./example.jpg"
-ARGS = (FILE_NAME, 80, 220)
+EXAMPLE_FILE = "./example.jpg"
+
+ARGS = (EXAMPLE_FILE, 80, 220)
 
 
-def rust_impl(file_name, amount=75, cutoff=220):
-    img_utils.increase_contrast(file_name, amount, cutoff)
+def rust_impl(src_path, dst_path, amount=75, cutoff=220):
+    img_utils.increase_contrast(src_path, dst_path, amount, cutoff)
 
 
 def python_impl(file_name, amount=75, cutoff=220):
@@ -35,7 +36,7 @@ def python_impl(file_name, amount=75, cutoff=220):
 if __name__ == "__main__":
 
     def python():
-        python_impl(FILE_NAME)
+        python_impl(EXAMPLE_FILE)
 
     def bench(func, max_runtime=5):
         start = time.time()
@@ -51,7 +52,7 @@ if __name__ == "__main__":
         return avg
 
     def rust():
-        rust_impl(FILE_NAME)
+        rust_impl(EXAMPLE_FILE, "out-rust.jpg")
 
     print()
     py_avg = bench(python)
