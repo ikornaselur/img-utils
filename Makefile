@@ -8,7 +8,8 @@ build_release:
 
 clean:
 	cargo clean
-	rm img_utils.so
+	rm *.so
+	rm *.jpg
 
 bench: build
 	@python main.py

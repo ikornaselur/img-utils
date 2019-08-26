@@ -39,20 +39,20 @@ fn darken_pixels(image: RgbImage, amount: u8, cutoff: u8) -> Result<RgbImage, Im
 
     let amount_frac = if amount > 100 {1.0f32} else {amount as f32 / 100f32};
 
-    for (x, y, Rgb([r, g, b])) in image.enumerate_pixels() {
-        let under = [*r, *g, *b].iter().any(|&x| x < cutoff);
+    dst.enumerate_pixels_mut().for_each(|(x, y, pixel)| {
+        let Rgb([r, g, b]) = image.get_pixel(x, y);
 
-        let pixel = if under {
-            let out_r = *r - (*r as f32 * amount_frac) as u8;
-            let out_g = *g - (*g as f32 * amount_frac) as u8;
-            let out_b = *b - (*b as f32 * amount_frac) as u8;
-            Rgb([out_r, out_g, out_b])
+        *pixel = if *r < cutoff || *g < cutoff || *b < cutoff {
+            Rgb([
+                *r - (*r as f32 * amount_frac) as u8,
+                *g - (*g as f32 * amount_frac) as u8,
+                *b - (*b as f32 * amount_frac) as u8,
+            ])
         } else {
             Rgb([*r, *g, *b])
         };
+    });
 
-        dst.put_pixel(x, y, pixel);
-    }
 
     Ok(dst)
 }
@@ -66,6 +66,8 @@ pub fn increase_contrast(src_path: String, dst_path: String, amount: u8, cutoff:
 
     Ok(())
 }
+
+
 
 fn increase_contrast_py(python: Python, src_path: String, dst_path: String, amount: u8, cutoff: u8) -> PyResult<PyObject> {
     match increase_contrast(src_path, dst_path, amount, cutoff) {
