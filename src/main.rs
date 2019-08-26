@@ -1,11 +1,12 @@
-use img_utils::darken_pixels;
+use img_utils::{darken_pixels, ImgError};
 
-fn main() {
+fn main() -> Result<(), ImgError> {
     darken_pixels(
-        String::from("test.jpg"),
-        String::from("test-out.jpg"),
+        String::from("test-img/test-normal.jpg"),
+        String::from("/tmp/test-out.jpg"),
         80,
         220,
-    )
-    .unwrap();
+    )?;
+
+    Ok(())
 }
