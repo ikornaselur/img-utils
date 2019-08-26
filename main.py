@@ -1,4 +1,4 @@
-import timeit
+import time
 
 import img_utils
 from PIL import Image
@@ -34,16 +34,32 @@ def python_impl(file_name, amount=75, cutoff=220):
 
 if __name__ == "__main__":
 
-    def pyth():
+    def python():
         python_impl(FILE_NAME)
 
-    py_runs = 3
-    total = timeit.timeit(pyth, number=py_runs)
-    print(f"Python: {total/py_runs * 1000:.02f} ms avg")
+    def bench(func, max_runtime=5):
+        start = time.time()
+        runs = 0
+        while time.time() - start < max_runtime:
+            func()
+            runs += 1
+        total = time.time() - start
+        avg = total / runs * 1000  # ms
+
+        print(f"{func.__name__.title()}: {avg:.02f} ms avg ({runs} runs)")
+
+        return avg
 
     def rust():
         rust_impl(FILE_NAME)
 
-    ru_runs = 10
-    total = timeit.timeit(rust, number=ru_runs)
-    print(f"Rust: {total/ru_runs * 1000:.02f} ms avg")
+    print()
+    py_avg = bench(python)
+    ru_avg = bench(rust)
+    print()
+
+    diff = py_avg / ru_avg
+    if diff > 1:
+        print(f"Rust is {diff:.02f}x faster")
+    else:
+        print(f"Rust is {1/diff:.02f}x slower")
