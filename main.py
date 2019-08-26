@@ -28,19 +28,22 @@ def python_impl(file_name, amount=75, cutoff=220):
                 b - int(b * amount / 100) if lower else b,
             )
 
-    with open("out.jpg", "wb") as f:
+    with open("out-python.jpg", "wb") as f:
         new_image.save(f, format=original.format)
 
 
 if __name__ == "__main__":
+
     def pyth():
         python_impl(FILE_NAME)
 
-    total = timeit.timeit(pyth, number=10)
-    print(f"Python: {total/10 * 1000:.02f} ms avg")
+    py_runs = 3
+    total = timeit.timeit(pyth, number=py_runs)
+    print(f"Python: {total/py_runs * 1000:.02f} ms avg")
 
     def rust():
         rust_impl(FILE_NAME)
 
-    total = timeit.timeit(rust, number=10)
-    print(f"Rust: {total/10 * 1000:.02f} ms avg")
+    ru_runs = 10
+    total = timeit.timeit(rust, number=ru_runs)
+    print(f"Rust: {total/ru_runs * 1000:.02f} ms avg")
