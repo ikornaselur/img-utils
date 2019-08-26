@@ -45,7 +45,7 @@ if __name__ == "__main__":
         return avg
 
     def rust(in_file: str, out_file: str):
-        img_utils.increase_contrast(in_file, out_file, AMOUNT, CUTOFF)
+        img_utils.darken_pixels(in_file, out_file, AMOUNT, CUTOFF)
 
     def python(in_file: str, out_file: str):
         python_impl(in_file, out_file, AMOUNT, CUTOFF)
