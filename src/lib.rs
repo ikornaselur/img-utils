@@ -4,11 +4,11 @@ extern crate cpython;
 use std::fmt;
 
 use image::{Rgb, ImageError, RgbImage};
-use cpython::{PyResult, Python, PyErr, exc};
+use cpython::{PyResult, Python, PyObject, PyErr, exc};
 
 py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
     m.add(py, "__doc__", "Image manipulation library")?;
-    m.add(py, "increase_contrast", py_fn!(py, increase_contrast_py(path: String, amount: u8, cutoff: u8)))?;
+    m.add(py, "increase_contrast", py_fn!(py, increase_contrast_py(src_path: String, dst_path: String, amount: u8, cutoff: u8)))?;
     Ok(())
 });
 
@@ -58,19 +58,18 @@ fn darken_pixels(image: RgbImage, amount: u8, cutoff: u8) -> Result<RgbImage, Im
 }
 
 
-pub fn increase_contrast(path: String, amount: u8, cutoff: u8) -> Result<String, ImgError> {
-    let src = image::open(&path)?.to_rgb();
-    let dst_path = "out.jpg";
+pub fn increase_contrast(src_path: String, dst_path: String, amount: u8, cutoff: u8) -> Result<(), ImgError> {
+    let src = image::open(&src_path)?.to_rgb();
 
     let dst = darken_pixels(src, amount, cutoff)?;
     dst.save(dst_path).unwrap();  // Convert to ImgError
 
-    Ok(String::from(dst_path))
+    Ok(())
 }
 
-fn increase_contrast_py(python: Python, path: String, amount: u8, cutoff: u8) -> PyResult<String> {
-    match increase_contrast(path, amount, cutoff) {
-        Ok(out) => Ok(out),
+fn increase_contrast_py(python: Python, src_path: String, dst_path: String, amount: u8, cutoff: u8) -> PyResult<PyObject> {
+    match increase_contrast(src_path, dst_path, amount, cutoff) {
+        Ok(()) => Ok(Python::None(python)),
         Err(e) => {
             match e {
                 ImgError::FileNotFound => Err(PyErr::new::<exc::RuntimeError, _>(python, "File not found")),
