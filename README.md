@@ -6,7 +6,7 @@ Port of some slow functions from Python to a Rust library with Python bindings, 
 
 Testing with 100x100 and 1000x1000 random noise images on a 2018 MBP
 
-#### `increase_contrast`
+#### `darken_pixels`
 ```
 *** Testing small size
 Python: 12.46 ms avg (402 runs)
