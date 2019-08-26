@@ -37,13 +37,15 @@ impl From<ImageError> for ImgError {
 fn darken_pixels(image: RgbImage, amount: u8, cutoff: u8) -> Result<RgbImage, ImgError> {
     let mut dst = RgbImage::new(image.width(), image.height());
 
+    let amount_frac = if amount > 100 {1.0f32} else {amount as f32 / 100f32};
+
     for (x, y, Rgb([r, g, b])) in image.enumerate_pixels() {
         let under = [*r, *g, *b].iter().any(|&x| x < cutoff);
 
         let pixel = if under {
-            let out_r = *r - (*r as f32 * (amount as f32 / 100f32)) as u8;
-            let out_g = *g - (*g as f32 * (amount as f32 / 100f32)) as u8;
-            let out_b = *b - (*b as f32 * (amount as f32 / 100f32)) as u8;
+            let out_r = *r - (*r as f32 * amount_frac) as u8;
+            let out_g = *g - (*g as f32 * amount_frac) as u8;
+            let out_b = *b - (*b as f32 * amount_frac) as u8;
             Rgb([out_r, out_g, out_b])
         } else {
             Rgb([*r, *g, *b])
@@ -130,5 +132,14 @@ mod test {
         let dst = darken_pixels(src, 50, 255).unwrap();
 
         assert_eq!(dst.into_vec(), vec![40, 50, 100]);
+    }
+
+    #[test]
+    fn darken_pixels_handles_amount_above_100() {
+        let src: RgbImage = RgbImage::from_vec(1, 1, vec![80, 100, 200]).unwrap();
+
+        let dst = darken_pixels(src, 255, 255).unwrap();
+
+        assert_eq!(dst.into_vec(), vec![0, 0, 0]);
     }
 }
