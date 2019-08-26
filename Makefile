@@ -18,6 +18,7 @@ bench_release: build_release
 	@venv/bin/python main.py
 
 publish_macos:
+	@cargo clean
 	@echo "Publishing for python 3.5, 3.6 and 3.7 on macos"
 	@pyo3-pack publish \
 		-u "${PYPI_USERNAME}" \
