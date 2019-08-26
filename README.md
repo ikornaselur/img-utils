@@ -3,6 +3,9 @@
 Port of some slow functions from Python to a Rust library with Python bindings,
 mainly to experiment with [rust-cpython](https://github.com/dgrunwald/rust-cpython)
 
+Published as [`rusty-img-utils`](https://pypi.org/project/rusty-img-utils/) on pypi for Python 3.5, 3.6 and 3.7 on linux and
+macos
+
 ### Functions
 
 #### `darken_pixels`
