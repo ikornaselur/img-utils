@@ -3,7 +3,7 @@ extern crate cpython;
 
 use std::fmt;
 
-use image::{Rgb, ImageError};
+use image::{Rgb, DynamicImage, ImageError};
 use cpython::{PyResult, Python, PyErr, exc};
 
 py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
@@ -35,23 +35,25 @@ impl From<ImageError> for ImgError {
 
 
 pub fn increase_contrast(path: String, amount: u8, cutoff: u8) -> Result<String, ImgError> {
-    let mut img = image::open(&path)?.to_rgb();
+    let src = image::open(&path)?.to_rgb();
+    let mut dst = DynamicImage::new_rgb8(src.width(), src.height()).to_rgb();
 
-    for (_, _, pixel) in img.enumerate_pixels_mut() {
-        let Rgb([r, g, b]) = pixel;
-        let lower = 0;
+    for (x, y, Rgb([r, g, b])) in src.enumerate_pixels() {
+        let under = [*r, *g, *b].iter().any(|&x| x < cutoff);
 
-        *pixel = if lower < cutoff {
-            let new_r = *r - ((*r as f32) * (amount as f32 / 100f32)) as u8;
-            let new_g = *g - ((*g as f32) * (amount as f32 / 100f32)) as u8;
-            let new_b = *b - ((*b as f32) * (amount as f32 / 100f32)) as u8;
-            Rgb([new_r, new_g, new_b])
+        let pixel = if under {
+            let out_r = *r - (*r as f32 * (amount as f32 / 100f32)) as u8;
+            let out_g = *g - (*g as f32 * (amount as f32 / 100f32)) as u8;
+            let out_b = *b - (*b as f32 * (amount as f32 / 100f32)) as u8;
+            Rgb([out_r, out_g, out_b])
         } else {
             Rgb([*r, *g, *b])
         };
+
+        dst.put_pixel(x, y, pixel);
     }
 
-    img.save("out.jpg").unwrap();
+    dst.save("out.jpg").unwrap();
 
     Ok(path)
 }
