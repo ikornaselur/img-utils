@@ -31,8 +31,8 @@ impl From<io::Error> for ImgError {
     }
 }
 
-fn _darken_pixels(image: RgbImage, amount: u8, cutoff: u8) -> Result<RgbImage, ImgError> {
-    let mut dst = RgbImage::new(image.width(), image.height());
+fn _darken_pixels(src: RgbImage, amount: u8, cutoff: u8) -> Result<RgbImage, ImgError> {
+    let mut dst = RgbImage::new(src.width(), src.height());
 
     let amount_frac = if amount > 100 {
         1.0f32
@@ -40,19 +40,21 @@ fn _darken_pixels(image: RgbImage, amount: u8, cutoff: u8) -> Result<RgbImage, I
         amount as f32 / 100f32
     };
 
-    dst.enumerate_pixels_mut().for_each(|(x, y, pixel)| {
-        let Rgb([r, g, b]) = image.get_pixel(x, y);
+    dst.pixels_mut()
+        .zip(src.pixels())
+        .for_each(|(dst_pixel, src_pixel)| {
+            let Rgb([r, g, b]) = src_pixel;
 
-        *pixel = if *r < cutoff || *g < cutoff || *b < cutoff {
-            Rgb([
-                *r - (*r as f32 * amount_frac) as u8,
-                *g - (*g as f32 * amount_frac) as u8,
-                *b - (*b as f32 * amount_frac) as u8,
-            ])
-        } else {
-            Rgb([*r, *g, *b])
-        };
-    });
+            *dst_pixel = if *r < cutoff || *g < cutoff || *b < cutoff {
+                Rgb([
+                    *r - (*r as f32 * amount_frac) as u8,
+                    *g - (*g as f32 * amount_frac) as u8,
+                    *b - (*b as f32 * amount_frac) as u8,
+                ])
+            } else {
+                Rgb([*r, *g, *b])
+            };
+        });
 
     Ok(dst)
 }
