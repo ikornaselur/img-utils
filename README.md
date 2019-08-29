@@ -1,4 +1,4 @@
-## Rusty Image Utils
+# Rusty Image Utils
 
 Port of some slow functions from Python to a Rust library with Python bindings,
 mainly to experiment with [rust-cpython](https://github.com/dgrunwald/rust-cpython)
@@ -6,9 +6,9 @@ mainly to experiment with [rust-cpython](https://github.com/dgrunwald/rust-cpyth
 Published as [`rusty-img-utils`](https://pypi.org/project/rusty-img-utils/) on pypi for Python 3.5, 3.6 and 3.7 on linux and
 macos
 
-### Functions
+## Functions
 
-#### `darken_pixels`
+### `darken_pixels`
 
 Darkens all pixels in the image by percentage, specified by `amount`. Any pixel
 that doesn't have a subpixel below than the `cutoff` will be ignored.
@@ -30,11 +30,11 @@ The RGB pixel `100, 220, 220` will be turned into `20, 44, 44` while `210, 220,
 230` will be left alone.
 
 
-### Performance comparison
+## Performance comparison
 
 Testing with 100x100 and 1000x1000 random noise images on a 2018 MBP
 
-#### `darken_pixels`
+### `darken_pixels`
 ```
 *** Testing small size
 Python: 12.46 ms avg (402 runs)
