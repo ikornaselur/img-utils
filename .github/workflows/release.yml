@@ -56,5 +56,44 @@ jobs:
         GITHUB_USER: ikornaselur
       run: |
         VERSION="v$(cat _version)"
-        ./hub release create -m "$VERSION" $VERSION
+        ./hub release show $VERSION || ./hub release create -m "$VERSION" $VERSION
+        for a in target/wheels/*.whl; do ./hub release edit -a $a -m "$VERSION" $VERSION; done
+  build-macos:
+    runs-on: macos-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v1
+    - uses: hecrj/setup-rust-action@master
+      with:
+        rust-version: stable
+    - name: Set up Python 3.5
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.5
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.6
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install pyo3-pack
+      run: |
+        pip install pyo3-pack
+    - name: Publish package
+      run: |
+        pyo3-pack build --release -i python3.5 -i python3.6 -i python3.7
+    - name: Install hub
+      run: |
+        wget https://github.com/github/hub/releases/download/v2.12.3/hub-darwin-amd64-2.12.3.tgz -O hub.tgz
+        tar -xvf hub.tgz
+        mv hub-darwin-amd64-2.12.3/bin/hub .
+    - name: Tag release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_USER: ikornaselur
+      run: |
+        VERSION="v$(cat _version)"
+        ./hub release show $VERSION || ./hub release create -m "$VERSION" $VERSION
         for a in target/wheels/*.whl; do ./hub release edit -a $a -m "$VERSION" $VERSION; done
