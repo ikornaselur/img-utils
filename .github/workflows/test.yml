@@ -8,6 +8,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Verify version matches
+      run: head -3 Cargo.toml | tail -1 | grep $(cat _version)
     - name: Build
       run: cargo build --verbose
     - name: Run tests
