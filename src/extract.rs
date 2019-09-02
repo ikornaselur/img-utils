@@ -9,9 +9,8 @@ fn _extract_blues(src: RgbImage, min_diff: u8, min_blue: u8) -> Result<RgbImage,
         .for_each(|(dst_pixel, src_pixel)| {
             let Rgb([r, g, b]) = src_pixel;
 
-            *dst_pixel = if ((*b).saturating_sub(*r) >= min_diff
-                || (*b).saturating_sub(*g) >= min_diff)
-                && *b >= min_blue
+            *dst_pixel = if *b >= min_blue
+                && ((*b).saturating_sub(*r) >= min_diff || (*b).saturating_sub(*g) >= min_diff)
             {
                 Rgb([0, 0, 0])
             } else {
