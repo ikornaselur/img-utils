@@ -29,6 +29,26 @@ all the subpixels are above 200.
 The RGB pixel `100, 220, 220` will be turned into `20, 44, 44` while `210, 220,
 230` will be left alone.
 
+### `extract_blues`
+
+Selects all pixels that have the blue pixel above a certain limit and either
+green or red the minimum difference blow the blue pixel. The selected pixels
+will be output as completely black while any other pixel is output as white.
+
+```python
+import img_utils
+img_utils.extract_blues(
+    src_path="in_file.jpg",
+    dst_path="out_file.jpg",
+    min_diff=30,
+    min_blue=100,
+)
+```
+
+will take the `in_file.jpg` and any pixel that has the blue pixel 100 or higher
+and either red or green pixel at 70 or lower (100 - 30) will be black, all
+others will be white.
+
 
 ## Performance comparison
 
@@ -37,14 +57,29 @@ Testing with 100x100 and 1000x1000 random noise images on a 2018 MBP
 ### `darken_pixels`
 ```
 *** Testing small size
-Python: 12.46 ms avg (402 runs)
-Rust: 1.10 ms avg (4534 runs)
+Python_Darken: 12.14 ms avg (412 runs)
+Rust_Darken: 1.15 ms avg (4357 runs)
 
-Rust is 11.30x faster for small size
+Rust is 10.58x faster for small size
 
 *** Testing normal size
-Python: 1138.35 ms avg (5 runs)
-Rust: 49.45 ms avg (102 runs)
+Python_Darken: 1103.74 ms avg (5 runs)
+Rust_Darken: 46.41 ms avg (108 runs)
 
-Rust is 23.02x faster for normal size
+Rust is 23.78x faster for normal size
+```
+
+### `extract_blues`
+```
+*** Testing small size
+Python_Extract: 4.94 ms avg (1012 runs)
+Rust_Extract: 1.17 ms avg (4282 runs)
+
+Rust is 4.23x faster for small size
+
+*** Testing normal size
+Python_Extract: 392.25 ms avg (13 runs)
+Rust_Extract: 47.71 ms avg (105 runs)
+
+Rust is 8.22x faster for normal size
 ```
