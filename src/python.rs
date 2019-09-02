@@ -1,6 +1,6 @@
 use cpython::{exc, PyErr, PyObject, PyResult, Python};
 
-use crate::darken::{darken_pixels, ImgError};
+use crate::{darken_pixels, ImgError};
 
 py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
     m.add(py, "__doc__", "Image manipulation library")?;
