@@ -39,15 +39,15 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Install pyo3-pack
+    - name: Install maturin
       run: |
-        pip install pyo3-pack
+        pip install maturin
     - name: Publish package
       env:
         PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        pyo3-pack publish \
+        maturin publish \
           -u $PYPI_USERNAME \
           -p $PYPI_PASSWORD \
           -i python3.5 \
@@ -86,15 +86,15 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Install pyo3-pack
+    - name: Install maturin
       run: |
-        pip install pyo3-pack
+        pip install maturin
     - name: Publish package
       env:
         PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        pyo3-pack publish \
+        maturin publish \
           -u $PYPI_USERNAME \
           -p $PYPI_PASSWORD \
           -i python3.5 \
