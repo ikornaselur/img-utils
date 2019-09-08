@@ -34,7 +34,7 @@ bench: venv
 #########
 python_tests:
 	pipenv run maturin develop
-	pipenv run py.test tests/python
+	pipenv run py.test tests/python -xvs
 
 rust_tests:
 	cargo test

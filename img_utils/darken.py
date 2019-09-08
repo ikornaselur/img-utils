@@ -1,5 +1,6 @@
 import img_utils.img_utils as _lib  # type: ignore
 
+from .exceptions import known_exceptions
 from .utils import u8
 
 
@@ -28,4 +29,5 @@ def darken_pixels(src_path: str, dst_path: str, amount: int, cutoff: int):
     230` will be left alone.
 
     """
-    _lib._darken_pixels(src_path, dst_path, u8(amount), u8(cutoff))
+    with known_exceptions():
+        _lib._darken_pixels(src_path, dst_path, u8(amount), u8(cutoff))

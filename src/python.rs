@@ -1,6 +1,6 @@
-use cpython::{exc, PyErr, PyObject, PyResult, Python};
+use cpython::{PyObject, PyResult, Python};
 
-use crate::{darken_pixels, extract_blues, ImgError};
+use crate::{darken_pixels, extract_blues};
 
 py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
     m.add(py, "__doc__", "Image manipulation library")?;
@@ -37,17 +37,7 @@ fn darken_pixels_py(
 ) -> PyResult<PyObject> {
     match darken_pixels(src_path, dst_path, amount, cutoff) {
         Ok(()) => Ok(Python::None(python)),
-        Err(e) => match e {
-            ImgError::FileNotFound => Err(PyErr::new::<exc::RuntimeError, _>(python, 1001)),
-            ImgError::IoError(e) => Err(PyErr::new::<exc::RuntimeError, _>(
-                python,
-                format!("IO Error: {:?}", e),
-            )),
-            e => Err(PyErr::new::<exc::RuntimeError, _>(
-                python,
-                format!("{:?}", e),
-            )),
-        },
+        Err(e) => Err(e.to_pyerr(python)),
     }
 }
 
@@ -60,18 +50,6 @@ fn extract_blues_py(
 ) -> PyResult<PyObject> {
     match extract_blues(src_path, dst_path, min_diff, min_blue) {
         Ok(()) => Ok(Python::None(python)),
-        Err(e) => match e {
-            ImgError::FileNotFound => {
-                Err(PyErr::new::<exc::RuntimeError, _>(python, "File not found"))
-            }
-            ImgError::IoError(e) => Err(PyErr::new::<exc::RuntimeError, _>(
-                python,
-                format!("IO Error: {:?}", e),
-            )),
-            e => Err(PyErr::new::<exc::RuntimeError, _>(
-                python,
-                format!("{:?}", e),
-            )),
-        },
+        Err(e) => Err(e.to_pyerr(python)),
     }
 }
