@@ -1,7 +1,7 @@
 import time
 
 import img_utils
-from PIL import Image
+from PIL import Image  # type: ignore
 
 FILES = {"small": "test-small.jpg", "normal": "test-normal.jpg"}
 
@@ -56,21 +56,39 @@ def python_impl_extract(in_file: str, out_file: str, min_diff: int, min_blue: in
         new_image.save(f, format=original.format)
 
 
-if __name__ == "__main__":
+def bench(func, args, max_runtime=MAX_RUNTIME):
+    start = time.time()
+    runs = 0
+    while time.time() - start < max_runtime:
+        func(*args)
+        runs += 1
+    total = time.time() - start
+    avg = total / runs * 1000  # ms
 
-    def bench(func, args, max_runtime=MAX_RUNTIME):
-        start = time.time()
-        runs = 0
-        while time.time() - start < max_runtime:
-            func(*args)
-            runs += 1
-        total = time.time() - start
-        avg = total / runs * 1000  # ms
+    print(f"{func.__name__.title()}: {avg:.02f} ms avg ({runs} runs)")
 
-        print(f"{func.__name__.title()}: {avg:.02f} ms avg ({runs} runs)")
+    return avg
 
-        return avg
 
+def bench_funcs(rust, python):
+    for size, file in FILES.items():
+        in_path = f"tests/assets/{file}"
+        out_path = f"/tmp/{file}"
+
+        print(f"*** Testing {size} size")
+        py_avg = bench(python, args=[in_path, out_path])
+        ru_avg = bench(rust, args=[in_path, out_path])
+        print()
+
+        diff = py_avg / ru_avg
+        if diff > 1:
+            print(f"Rust is {diff:.02f}x faster for {size} size")
+        else:
+            print(f"Rust is {1/diff:.02f}x slower for {size} size")
+        print()
+
+
+def run():
     def rust_darken(in_file: str, out_file: str):
         img_utils.darken_pixels(in_file, out_file, AMOUNT, CUTOFF)
 
@@ -83,22 +101,9 @@ if __name__ == "__main__":
     def python_extract(in_file: str, out_file: str):
         python_impl_extract(in_file, out_file, MIN_DIFF, MIN_BLUE)
 
-    def bench_funcs(rust, python):
-        for size, file in FILES.items():
-            in_path = f"tests/assets/{file}"
-            out_path = f"/tmp/{file}"
-
-            print(f"*** Testing {size} size")
-            py_avg = bench(python, args=[in_path, out_path])
-            ru_avg = bench(rust, args=[in_path, out_path])
-            print()
-
-            diff = py_avg / ru_avg
-            if diff > 1:
-                print(f"Rust is {diff:.02f}x faster for {size} size")
-            else:
-                print(f"Rust is {1/diff:.02f}x slower for {size} size")
-            print()
-
     bench_funcs(rust_darken, python_darken)
     bench_funcs(rust_extract, python_extract)
+
+
+if __name__ == "__main__":
+    run()

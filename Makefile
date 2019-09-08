@@ -24,10 +24,12 @@ _link:
 venv: _pipenv _venv _link
 
 bench: venv
-	echo "Running benchmark with debug build"
-	cargo build --release
-	mv target/debug/libimg_utils.dylib img_utils.so
-	pipenv run python main.py
+	pipenv run maturin develop --release
+	pipenv run python bench.py
+
+shell:
+	pipenv run maturin develop
+	pipenv run ipython
 
 #########
 # Tests #
