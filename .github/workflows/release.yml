@@ -26,8 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Setup pipenv
-      run: pip install pipenv
+    - uses: actions/setup-python@v1
+      with:
+        version: '3.7'
+        architecture: 'x64'
     - name: Setup env
       run: make venv
     - name: Run tests
