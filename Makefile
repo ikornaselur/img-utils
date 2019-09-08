@@ -28,7 +28,7 @@ bench: venv
 	pipenv run python bench.py
 
 shell:
-	pipenv run maturin develop
+	pipenv run maturin develop --release
 	pipenv run ipython
 
 #########
