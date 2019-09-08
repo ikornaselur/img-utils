@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     def bench_funcs(rust, python):
         for size, file in FILES.items():
-            in_path = f"test-img/{file}"
+            in_path = f"tests/assets/{file}"
             out_path = f"/tmp/{file}"
 
             print(f"*** Testing {size} size")

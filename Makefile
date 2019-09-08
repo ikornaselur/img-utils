@@ -1,22 +1,47 @@
 clean:
 	cargo clean
+	pipenv clean
 	rm -f *.so
+	rm -f img_utils/*.so
 	rm -f *.jpg
 
-pipenv:
+_pipenv:
 ifeq (, $(shell which pipenv))
 	pip install pipenv
 endif
 
-venv: pipenv
-	pipenv install --dev
+_venv:
+	pipenv sync --dev
+
+_link:
+	rm -rf venv
 	ln -s $(shell pipenv --venv) venv
+
+# Set up environment with pipenv
+#
+# pipenv --venv returns empty if run in the same target as initial sync for
+# some reason, so split it up to two targets to run together
+venv: _pipenv _venv _link
 
 bench: venv
 	echo "Running benchmark with debug build"
 	cargo build --release
 	mv target/debug/libimg_utils.dylib img_utils.so
 	pipenv run python main.py
+
+#########
+# Tests #
+#########
+python_tests:
+	pipenv run maturin develop
+	pipenv run py.test tests/python
+
+rust_tests:
+	cargo test
+
+tests: \
+	rust_tests \
+	python_tests
 
 
 ########################
