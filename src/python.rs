@@ -1,9 +1,10 @@
-use cpython::{PyObject, PyResult, Python};
+use cpython::{PyModule, PyObject, PyResult, Python};
 
-use crate::{darken_pixels, extract_blues};
+use crate::{darken_pixels, errors, extract_blues};
 
 py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
     m.add(py, "__doc__", "Image manipulation library")?;
+    m.add(py, "__package__", "img_utils.img_utils")?;
     m.add(
         py,
         "_darken_pixels",
@@ -25,6 +26,26 @@ py_module_initializer!(img_utils, initimg_utils, PyInit_img_utils, |py, m| {
             )
         ),
     )?;
+    // Exceptions
+    let exceptions = PyModule::new(py, "exceptions")?;
+    exceptions.add(py, "__package__", "img_utils.img_utils.exceptions")?;
+    exceptions.add(
+        py,
+        "ImgUtilsException",
+        py.get_type::<errors::ImgUtilsException>(),
+    )?;
+    exceptions.add(
+        py,
+        "FileNotFoundException",
+        py.get_type::<errors::FileNotFoundException>(),
+    )?;
+    exceptions.add(
+        py,
+        "UnsupportedFormatException",
+        py.get_type::<errors::UnsupportedFormatException>(),
+    )?;
+
+    m.add(py, "exceptions", exceptions)?;
     Ok(())
 });
 

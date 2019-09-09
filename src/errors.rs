@@ -10,16 +10,21 @@ pub enum ImgError {
     Error(ImageError),
 }
 
+py_exception!(exceptions, ImgUtilsException);
+py_exception!(exceptions, FileNotFoundException, ImgUtilsException);
+py_exception!(exceptions, UnsupportedFormatException, ImgUtilsException);
+
 impl ImgError {
     pub fn to_pyerr(&self, py: Python) -> PyErr {
         match *self {
-            ImgError::IoError(ref e) => match e.kind() {
-                std::io::ErrorKind::NotFound => PyErr::new::<exc::RuntimeError, _>(py, 1001),
-                _ => PyErr::new::<exc::RuntimeError, _>(py, 9001),
-            },
+            ImgError::IoError(ref e) => {
+                PyErr::new::<FileNotFoundException, _>(py, format!("{}", e))
+            }
             ImgError::Error(ref e) => match e {
-                ImageError::UnsupportedError(_) => PyErr::new::<exc::RuntimeError, _>(py, 1002),
-                _ => PyErr::new::<exc::RuntimeError, _>(py, 9002),
+                ImageError::UnsupportedError(_) => {
+                    PyErr::new::<UnsupportedFormatException, _>(py, format!("{}", e))
+                }
+                _ => PyErr::new::<exc::RuntimeError, _>(py, format!("{}", e)),
             },
         }
     }
