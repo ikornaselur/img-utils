@@ -1,6 +1,5 @@
-import img_utils.img_utils as _lib  # type: ignore
+from img_utils import img_utils as _lib
 
-from .exceptions import known_exceptions
 from .utils import u8
 
 
@@ -27,5 +26,4 @@ def extract_blues(src_path: str, dst_path: str, min_diff: int, min_blue: int):
     and either red or green pixel at 70 or lower (100 - 30) will be black, all
     others will be white.
     """
-    with known_exceptions():
-        _lib._extract_blues(src_path, dst_path, u8(min_diff), u8(min_blue))
+    _lib._extract_blues(src_path, dst_path, u8(min_diff), u8(min_blue))

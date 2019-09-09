@@ -1,4 +1,4 @@
-use lib::{darken_pixels, ImgError};
+use img_utils::{darken_pixels, ImgError};
 
 fn main() -> Result<(), ImgError> {
     darken_pixels(
