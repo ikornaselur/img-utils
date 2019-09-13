@@ -3,14 +3,29 @@ name: Test
 on: [push]
 
 jobs:
-  test:
+  version:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v1
     - name: Verify version matches
       run: head -3 Cargo.toml | tail -1 | grep $(cat _version)
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
     - name: Build
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+  python:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        version: '3.7'
+        architecture: 'x64'
+    - name: Setup env
+      run: make venv
+    - name: Run tests
+      run: make python_tests

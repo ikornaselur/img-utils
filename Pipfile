@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+pillow = "==6.1.0"
+ipython = "*"
+maturin = "*"
+ipdb = "*"
+pdbpp = "*"
+mock = "*"
+
+[packages]
+
+[requires]
+python_version = "3.7"

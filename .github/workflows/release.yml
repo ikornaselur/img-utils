@@ -8,20 +8,36 @@ on:
       - '_version'
 
 jobs:
-  test:
+  version:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Verify version matches
       run: head -3 Cargo.toml | tail -1 | grep $(cat _version)
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
     - name: Build
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+  python:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        version: '3.7'
+        architecture: 'x64'
+    - name: Setup env
+      run: make venv
+    - name: Run tests
+      run: make python_tests
 
   build-ubuntu:
     runs-on: ubuntu-latest
-    needs: test
+    needs: [version, rust, python]
     steps:
     - uses: actions/checkout@v1
     - uses: hecrj/setup-rust-action@master
@@ -39,15 +55,15 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Install pyo3-pack
+    - name: Install maturin
       run: |
-        pip install pyo3-pack
+        pip install maturin
     - name: Publish package
       env:
         PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        pyo3-pack publish \
+        maturin publish \
           -u $PYPI_USERNAME \
           -p $PYPI_PASSWORD \
           -i python3.5 \
@@ -68,7 +84,7 @@ jobs:
         for a in target/wheels/*.whl; do ./hub release edit -a $a -m "$VERSION" $VERSION; done
   build-macos:
     runs-on: macos-latest
-    needs: test
+    needs: [version, rust, python]
     steps:
     - uses: actions/checkout@v1
     - uses: hecrj/setup-rust-action@master
@@ -86,15 +102,15 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.7
-    - name: Install pyo3-pack
+    - name: Install maturin
       run: |
-        pip install pyo3-pack
+        pip install maturin
     - name: Publish package
       env:
         PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
         PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
-        pyo3-pack publish \
+        maturin publish \
           -u $PYPI_USERNAME \
           -p $PYPI_PASSWORD \
           -i python3.5 \

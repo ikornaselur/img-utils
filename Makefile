@@ -1,33 +1,58 @@
-build:
-	cargo build
-	mv target/debug/libimg_utils.dylib img_utils.so
-
-build_release:
-	cargo build --release
-	mv target/release/libimg_utils.dylib img_utils.so
-
 clean:
 	cargo clean
-	rm *.so 2>/dev/null
-	rm *.jpg 2>/dev/null
+	pipenv clean
+	rm -f *.so
+	rm -f img_utils/*.so
+	rm -f *.jpg
 
-venv:
-	echo "Setting up virtualenv with Pillow"
-	virtualenv --python=python3.7 venv
-	venv/bin/pip install Pillow==6.1.0
+_pipenv:
+ifeq (, $(shell which pipenv))
+	pip install pipenv
+endif
 
-bench: build venv
-	echo "Running benchmark with debug build"
-	venv/bin/python main.py
+_venv:
+	pipenv sync --dev
 
-bench_release: build_release venv
-	echo "Running benchmark with debug release"
-	venv/bin/python main.py
+_link:
+	rm -rf venv
+	ln -s $(shell pipenv --venv) venv
 
+# Set up environment with pipenv
+#
+# pipenv --venv returns empty if run in the same target as initial sync for
+# some reason, so split it up to two targets to run together
+venv: _pipenv _venv _link
+
+bench: venv
+	pipenv run maturin develop --release
+	pipenv run python bench.py
+
+shell:
+	pipenv run maturin develop --release
+	pipenv run ipython
+
+#########
+# Tests #
+#########
+python_tests:
+	pipenv run maturin develop
+	pipenv run py.test tests/python -xvs
+
+rust_tests:
+	cargo test
+
+tests: \
+	rust_tests \
+	python_tests
+
+
+########################
+# PyPI publish targets #
+########################
 publish_macos:
 	cargo clean
 	echo "Publishing for python 3.5, 3.6 and 3.7 on macos"
-	pyo3-pack publish \
+	maturin publish \
 		-u "${PYPI_USERNAME}" \
 		-p "${PYPI_PASSWORD}" \
 		-i python3.5 \
@@ -36,7 +61,7 @@ publish_macos:
 
 publish_linux:
 	echo "Publishing for python 3.5, 3.6 and 3.7 on linux"
-	docker run --rm -v `pwd`:/io konstin2/pyo3-pack publish \
+	docker run --rm -v `pwd`:/io konstin2/maturin publish \
 		-u "${PYPI_USERNAME}" \
 		-p "${PYPI_PASSWORD}" \
 		-i python3.5 \
