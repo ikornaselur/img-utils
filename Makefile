@@ -57,15 +57,17 @@ publish_macos:
 		-p "${PYPI_PASSWORD}" \
 		-i python3.5 \
 		-i python3.6 \
-		-i python3.7
+		-i python3.7 \
+		-i python3.8
 
 publish_linux:
-	echo "Publishing for python 3.5, 3.6 and 3.7 on linux"
+	echo "Publishing for python 3.5, 3.6, 3.7 and 3.8 on linux"
 	docker run --rm -v `pwd`:/io konstin2/maturin publish \
 		-u "${PYPI_USERNAME}" \
 		-p "${PYPI_PASSWORD}" \
 		-i python3.5 \
 		-i python3.6 \
-		-i python3.7
+		-i python3.7 \
+		-i python3.8
 
 publish: publish_macos publish_linux
