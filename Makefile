@@ -51,8 +51,8 @@ tests: \
 ########################
 publish_macos:
 	cargo clean
-	echo "Publishing for python 3.5, 3.6 and 3.7 on macos"
-	maturin publish \
+	echo "Publishing for python 3.5, 3.6, 3.7 and 3.8 on macos"
+	pipenv run maturin publish \
 		-u "${PYPI_USERNAME}" \
 		-p "${PYPI_PASSWORD}" \
 		-i python3.5 \
